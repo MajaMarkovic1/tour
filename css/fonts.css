@@ -1,0 +1,20 @@
+/***
+*** NewsGothicMT
+***/
+
+@font-face {
+    font-family: "NewsGothicMT";
+    src: url("fonts/NewsGothicMT/NewsGothicMT.ttf");
+}
+
+@font-face {
+    font-family: "NewsGothicMT-bold";
+    src: url("fonts/NewsGothicMT/NewsGothicMTBold.ttf");
+    font-weight: bold;
+}
+
+@font-face {
+    font-family: "NewsGothicMT-italic";
+    src: url("fonts/NewsGothicMT/NewsGothicMTItalic.ttf");
+    font-style: italic, oblique;
+}

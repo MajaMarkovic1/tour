@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+      <meta charset="utf-8" />
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <title>Lech Zuers</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="stylesheet" type="text/css" media="screen" href="https://static.maptoolkit.net/api/v8.9/mtk.css" />
+      <link rel="stylesheet" type="text/css" media="screen" href="vendor/css/swiper.min.css" />
+      <link rel="stylesheet" type="text/css" media="screen" href="vendor/css/nouislider.css" />
+      <link rel="stylesheet" type="text/css" media="screen" href="css/fonts.css" />
+      <link rel="stylesheet" type="text/css" media="screen" href="css/icons.css" />
+      <link rel="stylesheet" type="text/css" media="screen" href="css/index.css" />
+      <style>
+            [v-cloak] {
+                  display: none;
+            }
+      </style>
+</head>
+
+<body>
+
+      <script type="text/x-template" id="modal-template">
+      <transition name="modal">
+         <div class="modal-mask" @click="close" v-show="show">
+            <div class="modal-innermask" v-bind:style="{ top: (y+15)+'px' }">
+               <div class="modal-wrapper" v-bind:style="{ left: x+'px', top: 0 }" >
+                  <div class="modal-container" @click.stop>
+                     <div class="modal-body"><slot></slot></div>
+                     <div class="modal-footer">
+                        <span @click="$emit('close')">Fertig</span>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </transition>
+   </script>
+
+      <script type="text/x-template" id="difficulty-modal-template">
+      <modal :show="show" @close="close" :x="x" :y="y" data-type="difficulty">
+                  <h3><b>Schwierigkeit</b></h3>
+                  <p>Wähle einen Schwierigkeitsgrad für deine Tour aus.</p>
+                  <div class="filter-checkbox">
+                                    <div class="checkbox checkbox-primary">
+                                          <input id="checkbox_easy" type="checkbox" v-model="easy" />
+                                    </div>
+                                    <label class="checkbox-label" for="checkbox_easy">Leicht</label>
+                        </div>
+                  <div class="filter-checkbox">
+                                    <div class="checkbox checkbox-primary">
+                                          <input id="checkbox_medium" type="checkbox" v-model="intermediate" />
+                                    </div>
+                                    <label class="checkbox-label" for="checkbox_medium">Mittel</label>
+                        </div>
+                  <div class="filter-checkbox">
+                                    <div class="checkbox checkbox-primary">
+                                          <input id="checkbox_difficult" type="checkbox" v-model="difficult" />
+                                    </div>
+                                    <label class="checkbox-label" for="checkbox_difficult">Schwer</label>
+                        </div>
+      </modal>
+   </script>
+      <script type="text/x-template" id="subtype-modal-template">
+      <modal :show="show" @close="close" :x="x" :y="y" data-type="subtype">
+                  <h3><b>Tourentyp</b></h3>
+                  <p>Wähle die Art deiner Tour.</p>
+                  <div class="filter-checkbox">
+                        <div class="checkbox checkbox-primary">
+                                 <input id="checkbox_wanderung" :checked="is_type('Wanderung') ? 'checked' : ''" @click="toggle_type('Wanderung')" type="checkbox" />
+                           </div>
+                           <label class="checkbox-label" for="checkbox_wanderung">Wanderung</label>
+                  </div>
+                  <div class="filter-checkbox">
+                        <div class="checkbox checkbox-primary">
+                                 <input id="checkbox_fernwanderweg" :checked="is_type('Fernwanderweg') ? 'checked' : ''" @click="toggle_type('Fernwanderweg')" type="checkbox" />
+                           </div>
+                           <label class="checkbox-label" for="checkbox_fernwanderweg">Fernwanderweg</label>
+                  </div>
+                  <div class="filter-checkbox">
+                        <div class="checkbox checkbox-primary">
+                                 <input id="checkbox_themenweg" :checked="is_type('Themenweg') ? 'checked' : ''" @click="toggle_type('Themenweg')" type="checkbox" />
+                           </div>
+                           <label class="checkbox-label" for="checkbox_themenweg">Themenweg</label>
+                  </div>
+                  <div class="filter-checkbox">
+                        <div class="checkbox checkbox-primary">
+                                 <input id="checkbox_winterwandern" :checked="is_type('Winterwandern') ? 'checked' : ''" @click="toggle_type('Winterwandern')" type="checkbox" />
+                           </div>
+                           <label class="checkbox-label" for="checkbox_winterwandern">Winterwandern</label>
+                  </div>
+                  <div class="filter-checkbox">
+                        <div class="checkbox checkbox-primary">
+                                 <input id="checkbox_bergtour" :checked="is_type('Bergtour') ? 'checked' : ''" @click="toggle_type('Bergtour')" type="checkbox" />
+                           </div>
+                           <label class="checkbox-label" for="checkbox_bergtour">Bergtour</label>
+                  </div>
+                  <div class="filter-checkbox">
+                        <div class="checkbox checkbox-primary">
+                                 <input id="checkbox_hochtour" :checked="is_type('Hochtour') ? 'checked' : ''" @click="toggle_type('Hochtour')" type="checkbox" />
+                           </div>
+                           <label class="checkbox-label" for="checkbox_hochtour">Hochtour</label>
+                  </div>
+                  <div class="filter-checkbox">
+                        <div class="checkbox checkbox-primary">
+                                 <input id="checkbox_jogging" :checked="is_type('Jogging') ? 'checked' : ''" @click="toggle_type('Jogging')" type="checkbox" />
+                           </div>
+                           <label class="checkbox-label" for="checkbox_jogging">Jogging</label>
+                  </div>
+                  <div class="filter-checkbox">
+                        <div class="checkbox checkbox-primary">
+                                 <input id="checkbox_trailrunning" :checked="is_type('Trailrunning') ? 'checked' : ''" @click="toggle_type('Trailrunning')" type="checkbox" />
+                           </div>
+                           <label class="checkbox-label" for="checkbox_trailrunning">Trailrunning</label>
+                  </div>
+                  <div class="filter-checkbox">
+                        <div class="checkbox checkbox-primary">
+                                 <input id="checkbox_nordic-walking" :checked="is_type('Nordic Walking') ? 'checked' : ''" @click="toggle_type('Nordic Walking')" type="checkbox" />
+                           </div>
+                           <label class="checkbox-label" for="checkbox_nordic-walking">Nordic Walking</label>
+                  </div>
+                  <div class="filter-checkbox">
+                        <div class="checkbox checkbox-primary">
+                                 <input id="checkbox_klettersteig" :checked="is_type('Klettersteig') ? 'checked' : ''" @click="toggle_type('Klettersteig')" type="checkbox" />
+                           </div>
+                           <label class="checkbox-label" for="checkbox_klettersteig">Klettersteig</label>
+                  </div>
+                  <div class="filter-checkbox">
+                        <div class="checkbox checkbox-primary">
+                                 <input id="checkbox_langlauf" :checked="is_type('Langlauf') ? 'checked' : ''" @click="toggle_type('Langlauf')" type="checkbox" />
+                           </div>
+                           <label class="checkbox-label" for="checkbox_langlauf">Langlauf</label>
+                  </div>
+                  <div class="filter-checkbox">
+                        <div class="checkbox checkbox-primary">
+                                 <input id="checkbox_mountainbike" :checked="is_type('Mountainbike') ? 'checked' : ''" @click="toggle_type('Mountainbike')" type="checkbox" />
+                           </div>
+                           <label class="checkbox-label" for="checkbox_mountainbike">Mountainbike</label>
+                  </div>
+                  <div class="filter-checkbox">
+                        <div class="checkbox checkbox-primary">
+                                 <input id="checkbox_skitour" :checked="is_type('Skitour') ? 'checked' : ''" @click="toggle_type('Skitour')" type="checkbox" />
+                           </div>
+                           <label class="checkbox-label" for="checkbox_skitour">Skitour</label>
+                  </div>
+                  <div class="filter-checkbox">
+                        <div class="checkbox checkbox-primary">
+                                 <input id="checkbox_skifreeride" :checked="is_type('Ski Freeride') ? 'checked' : ''" @click="toggle_type('Ski Freeride')" type="checkbox" />
+                           </div>
+                           <label class="checkbox-label" for="checkbox_skifreeride">Ski Freeride</label>
+                  </div>
+                  <div class="filter-checkbox">
+                        <div class="checkbox checkbox-primary">
+                                 <input id="checkbox_rodeln" :checked="is_type('Rodeln') ? 'checked' : ''" @click="toggle_type('Rodeln')" type="checkbox" />
+                           </div>
+                           <label class="checkbox-label" for="checkbox_rodeln">Rodeln</label>
+                  </div>
+                  <div class="filter-checkbox">
+                        <div class="checkbox checkbox-primary">
+                                 <input id="checkbox_pferdeschlitten" :checked="is_type('Pferdeschlitten') ? 'checked' : ''" @click="toggle_type('Pferdeschlitten')" type="checkbox" />
+                           </div>
+                           <label class="checkbox-label" for="checkbox_pferdeschlitten">Pferdeschlitten</label>
+                  </div>
+      </modal>
+   </script>
+
+      <script type="text/x-template" id="more-modal-template">
+      <modal :show="show" @close="close" :x="x" :y="y" data-type="more">
+         <span class="filter-title">Distanz:</span><p><span class="distance_from">0</span> - <span class="distance_to">0</span> km</p>
+         <div id="distance_slider"></div>
+         <span class="filter-title">Anstieg:</span><p><span class="ascent_from">0</span> - <span class="ascent_to">0</span> m</p>
+         <div id="ascent_slider"></div>
+         <span class="filter-title">Dauer:</span><p><span class="duration_from">0</span> - <span class="duration_to">0</span> h</p>
+         <div id="duration_slider"></div>
+         <!-- <br />
+         <div class="filter-checkbox">
+               <div class="checkbox checkbox-primary">
+                        <input id="checkbox_tag_a" :checked="has_tag('Tag-A') ? 'checked' : ''" @click="toggle_tag('Tag-A')" type="checkbox" />
+                  </div>
+                  <label class="checkbox-label" for="checkbox_tag_a">Tag A</label>
+         </div>
+         <div class="filter-checkbox">
+               <div class="checkbox checkbox-primary">
+                        <input id="checkbox_tag_b" :checked="has_tag('Tag-B') ? 'checked' : ''" @click="toggle_tag('Tag-B')" type="checkbox" />
+                  </div>
+                  <label class="checkbox-label" for="checkbox_tag_b">Tag B</label>
+         </div>
+         <div class="filter-checkbox">
+               <div class="checkbox checkbox-primary">
+                        <input id="checkbox_tag_c" :checked="has_tag('Tag-C') ? 'checked' : ''" @click="toggle_tag('Tag-C')" type="checkbox" />
+                  </div>
+                  <label class="checkbox-label" for="checkbox_tag_c">Tag C</label>
+         </div> -->
+      </modal>
+   </script>
+
+      <script type="text/x-template" id="list-placeholder">
+            <div class="element list-placeholder">
+                  <div class="gallery"></div>
+                  <span class="type Trailrunning">PLACEHOLDER TYPE</span>
+                  <p class="title">PLACEHOLDING TITLE</p>
+                  <div class="stats-flash">
+                        <div class="stat">
+                              <span class="icon"><i class="icon-duration"></i></span>
+                              <span class="value">000</span>
+                              <span class="unit">Min</span>
+                        </div>
+                        <div class="stat">
+                              <span class="icon"><i class="icon-ascent"></i></span>
+                              <span class="value">000</span>
+                              <span class="unit">m</span>
+                        </div>
+                        <div class="stat">
+                              <span class="icon"><i class="icon-distance"></i></span>
+                              <span class="value">22</span>
+                              <span class="unit">km</span></div>
+                        <div class="stat">
+                              <span class="icon"><i class="icon-descent"></i></span>
+                              <span class="value">000</span>
+                              <span class="unit">m</span>
+                        </div>
+                  </div>
+            </div>
+      </script>
+
+      <header>
+            <img src="images/logo_lech_zuers.png">
+      </header>
+      <div class="wrapper">
+            <div id="app">
+                  <div class="header">
+                        <h1>Touren in Lech Zürs</h1>
+                        <div class="separator-12"></div>
+                        <div class="filters" id="filters">
+                              <!-- <button type="button" class="" v-bind:class="{ 'btn-primary': hasTag('Top-Touren'), 'btn-secondary': !hasTag('Top-Touren') }"
+                                    @click="toggleTag('Top-Touren')">Top&nbspTouren</button> -->
+                              <button type="button" class="" v-bind:class="{ 'btn-primary': hasTag('familienfreundlich'), 'btn-secondary': !hasTag('familienfreundlich') }"
+                                    @click="toggleTag('familienfreundlich')">Familienfreundlich</button>
+                              <button type="button" class="" v-bind:class="{ 'btn-primary': hasDifficulties, 'btn-secondary': !hasDifficulties }"
+                                    @click="openModal('showDifficultyModal', $event)">Schwierigkeit</button>
+                              <difficulty-modal ref="difficultyModal" :show="showDifficultyModal" @close="closeModal()"
+                                    :x="modalX" :y="modalY"></difficulty-modal>
+                              <button type="button" class="" v-bind:class="{ 'btn-primary': hasSubtype, 'btn-secondary': !hasSubtype }"
+                                    @click="openModal('showSubtypeModal', $event)">Tourentyp</button>
+                              <subtype-modal ref="subtypeModal" :show="showSubtypeModal" @close="closeModal()" :x="modalX"
+                                    :y="modalY" :is_type="isSubtype" :toggle_type="toggleSubtype"></subtype-modal>
+                              <button type="button" class="" v-bind:class="{ 'btn-primary': hasMore, 'btn-secondary': !hasMore }"
+                                    @click="openModal('showMoreModal', $event)">Weitere&nbspFilter</button>
+                              <span class="list-resultnumber" v-cloak v-if="!loading"><b>{{ allItemCount == 1 &&
+                                          !loading
+                                          ? allItemCount + ' Ergebnis' : allItemCount + ' Ergebnisse'}}</b></span>
+                              <more-modal ref="moreModal" :show="showMoreModal" @close="closeModal()" :x="modalX" :y="modalY"
+                                    :has_tag="hasTag" :toggle_tag="toggleTag"></more-modal>
+                              <div class="map-show-toggle">
+                                    <label class="checkbox-label" for="map_toggle">Karte zeigen</label>
+                                    <div class="checkbox checkbox-switch checked">
+                                          <input id="map_toggle" type="checkbox" checked />
+                                    </div>
+                              </div>
+                        </div>
+                        <div class="separator-12"></div>
+                  </div>
+                  <div class="content">
+                        <div class="list" v-cloak>
+                              <list-placeholder v-if="items.length == 0 && loading" v-for="n in itemsPerPage"></list-placeholder>
+                              <div v-for="item in pageItems" class="element" :id="item.id">
+                                    <p class="tags">
+                                          <span class="symbol" v-bind:style="{ background: 'url(images/tours/symbols/' + item.data.subtype.replace(' ','-').toLowerCase() + '.svg) center/100%' }"></span>
+                                          <span class="difficulty" :data-difficulty="item.data.rating.difficulty">{{
+                                                difficulty[item.data.rating.difficulty] }}</span>
+                                    </p>
+                                    <div class="gallery swiper-container">
+                                          <div class="slides swiper-wrapper">
+                                                <div v-for="image in item.data.images" class="slide swiper-slide">
+                                                      <img :src="image.url" :title="image.name">
+                                                </div>
+                                          </div>
+                                          <div class="swiper-pagination-background"></div>
+                                          <div class="swiper-pagination"></div>
+                                          <div class="swiper-button-prev">
+                                                <i class="icon-arrow-left swiper-noclick"></i>
+                                          </div>
+                                          <div class="swiper-button-next">
+                                                <i class="icon-arrow-right swiper-noclick"></i>
+                                          </div>
+                                    </div>
+                                    <span class="type" :class="item.data.subtype.replace(' ','-')">{{ item.data.subtype
+                                          }}</span>
+                                    <p class="title">{{ item.data.content.name }}</p>
+                                    <div class="stats-flash">
+                                          <div class="stat" title="Dauer">
+                                                <span class="icon">
+                                                      <i class="icon-duration"></i>
+                                                </span>
+                                                <span class="value">{{ (Math.floor(item.data.route.walking_time / 60) <
+                                                            10 ? "0" + Math.floor(item.data.route.walking_time / 60) :
+                                                            Math.floor(item.data.route.walking_time / 60)) + ":" +
+                                                            (item.data.route.walking_time % 60 < 10 ? "0" +
+                                                            item.data.route.walking_time % 60 :
+                                                            item.data.route.walking_time % 60) }}</span> <span class="unit">Std</span>
+                                          </div>
+                                          <div class="stat" title="Aufstieg">
+                                                <span class="icon">
+                                                      <i class="icon-ascent"></i>
+                                                </span>
+                                                <span class="value">{{ item.route.ascent }}</span>
+                                                <span class="unit">m</span>
+                                          </div>
+                                          <div class="stat" title="Distanz">
+                                                <span class="icon">
+                                                      <i class="icon-distance"></i>
+                                                </span>
+                                                <span class="value">{{ Math.floor(item.route.distance / 100) / 10 }}</span>
+                                                <span class="unit">km</span>
+                                          </div>
+                                          <div class="stat" title="Abstieg">
+                                                <span class="icon">
+                                                      <i class="icon-descent"></i>
+                                                </span>
+                                                <span class="value">{{ item.route.descent }}</span>
+                                                <span class="unit">m</span>
+                                          </div>
+                                    </div>
+                              </div>
+                        </div>
+                        <div class="pagination" v-cloak>
+                              <span @click="gotoPage(pageNumber-1)" v-if="pageNumber" class="prevnext"><i class="icon-arrow-left"></i></span>
+                              <span v-for="c in pageCount" @click="gotoPage(c-1)" v-bind:class="{ 'actual': c-1 == pageNumber }">{{
+                                    c }}</span><span @click="gotoPage(pageNumber+1)" v-if="pageNumber!=(pageCount-1)"
+                                    class="prevnext"><i class="icon-arrow-right"></i></span>
+                        </div>
+                  </div>
+            </div>
+            <div class="right">
+                  <div id="map"></div>
+                  <div class="map-refresh-toggle-wrapper">
+                        <div class="map-refresh-toggle">
+                              <div class="checkbox checkbox-primary checked">
+                                    <input id="checkbox_refresh" type="checkbox" checked />
+                              </div>
+                              <label class="checkbox-label" for="checkbox_refresh">Suchen, während ich die Karte bewege</label>
+                        </div>
+                  </div>
+            </div>
+      </div>
+      <script src="vendor/js/jquery-3.2.1.min.js"></script>
+      <!-- development version, includes helpful console warnings -->
+      <!-- <script src="vendor/js/dev.vue.js"></script> -->
+      <!-- production version, optimized for size and speed -->
+      <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+      <script src="https://static.maptoolkit.net/api/v8.9/mtk.de.js"></script>
+      <script src="vendor/js/swiper.min.js"></script>
+      <script src="vendor/js/nouislider.min.js"></script>
+      <script src="js/routeCMS.js"></script>
+
+      <script>
+            MTK.init({ apiKey: "routeCMS" }).createMap("map", {
+                  map: {
+                        location: { center: $P(47.2002105, 10.1256179), zoom: 11 },
+                        mapType: "terrain_v2",
+                        options: { scrollWheelZoom: false, minZoom: 11 }
+                  },
+                  resources: {
+                        routeCMS_routes: {
+                              details: { onTop: true, handleClick: false },
+                              show: "ids",
+                              ids: [],
+                              icon: item => ({
+                                    iconUrl: `images/tours/marker/${item.data.subtype.replace(" ", "-").toLowerCase()}.svg`,
+                                    iconSize: [26, 31],
+                                    iconAnchor: [13, 31]
+                              })
+                        }
+                  }
+            }, function (map) {
+                  // init item-list
+                  window.routeList = new MTK.RouteCMS.RouteList(map, "lechzuers");
+                  // handle list-item click
+                  $(document).on("click", ".element", (evt) => {
+                        if (!evt.target.className.match(/swiper/i))
+                              location.href = "route.html#id=" + evt.currentTarget.id;
+                  });
+                  // handle list-item hover
+                  $(document).on("mouseover", ".element", (evt) => {
+                        let overlay = map.getOverlayById("routeCMS_routes", evt.currentTarget.id),
+                              $map = map.el;
+                        if (overlay) {
+                              overlay.setZIndexOffset(100000).setIcon({
+                                    iconUrl: `images/tours/marker/${overlay.item.data.subtype.replace(" ", "-").toLowerCase()}.svg`,
+                                    iconSize: [34, 41],
+                                    iconAnchor: [17, 41]
+                              });
+                              jQuery(overlay._icon).addClass("highlighted-marker");
+                              $map.addClass("highlighting-markers");
+                        }
+                  });
+                  $(document).on("mouseout", ".element", (evt) => {
+                        let overlay = map.getOverlayById("routeCMS_routes", evt.currentTarget.id),
+                              $map = map.el;
+                        if (overlay) {
+                              overlay.setZIndexOffset(0).setIcon({
+                                    iconUrl: `images/tours/marker/${overlay.item.data.subtype.replace(" ", "-").toLowerCase()}.svg`,
+                                    iconSize: [26, 31],
+                                    iconAnchor: [13, 31]
+                              });
+                              jQuery(overlay._icon).removeClass("highlighted-marker");
+                              $map.removeClass("highlighting-markers");
+                        }
+                  });
+                  // handle infowindow click
+                  var currentOverlay = null;
+                  MTK.event.addListener(map, "Overlay.click", o => { currentOverlay = o });
+                  MTK.event.addListener(map, "InfoWindow.clicked", () => {
+                        location.href = "route.html#id=" + currentOverlay.item.id;
+                  });
+                  // update item-list on map-movement
+                  if (jQuery(".map-refresh-toggle input[type='checkbox']").is(":checked")) map.leaflet.on("moveend", routeList.refreshList);
+                  jQuery(document).on("change", ".map-refresh-toggle input[type='checkbox']", e => {
+                        if (e.currentTarget.checked) map.leaflet.on("moveend", routeList.refreshList);
+                        else map.leaflet.off("moveend", routeList.refreshList);
+                  });
+            });
+            // update custom filter-checkbox classes
+            jQuery(document).on("change", ".checkbox input[type='checkbox']", e => {
+                  let $e = jQuery(e.currentTarget);
+                  if (e.currentTarget.checked) $e.parent().addClass("checked"); else $e.parent().removeClass("checked");
+            });
+            // css fixes when show/hide map
+            jQuery(document).on("change", ".map-show-toggle input[type='checkbox']", e => {
+                  if (!e.currentTarget.checked) jQuery(".wrapper").addClass("no-map"); else jQuery(".wrapper").removeClass("no-map");
+                  window.dispatchEvent(new Event("resize"));
+            });
+      </script>
+</body>
+
+</html>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30">
+    <g fill="none" fill-rule="evenodd" transform="translate(4 2)">
+        <circle cx="11" cy="11" r="11.7" fill="#333" fill-rule="nonzero" stroke="#FFF" stroke-width="1.4"/>
+        <text fill="#FFF" font-family="NewsGothicMT-Bold, News Gothic MT" font-size="15" font-weight="bold">
+            <tspan x="6" y="17">S</tspan>
+        </text>
+    </g>
+</svg>

@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Lech Zuers</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      media="screen"
+      href="https://static.maptoolkit.net/api/v8.9/mtk.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      media="screen"
+      href="https://static.maptoolkit.net/api/v8.9/elevationprofile2.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      media="screen"
+      href="vendor/css/swiper.min.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      media="screen"
+      href="vendor/css/nouislider.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      media="screen"
+      href="css/fonts.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      media="screen"
+      href="css/icons.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      media="screen"
+      href="css/route.css"
+    />
+    <style>
+      [v-cloak] {
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <script type="text/x-template" id="share-modal">
+      <transition name="modal">
+          <div class="modal-mask" @click="close" v-show="show">
+              <div class="modal-wrapper" >
+                  <div class="modal-container" @click.stop>
+                      <div class="modal-body">
+                          <div class="share-container">
+                              <a class="share-link share-facebook" :href="'https://www.facebook.com/sharer/sharer.php?href=' + url" target="_blank" rel="popup"><i class="icon-facebook"></i></a>
+                              <a class="share-link share-twitter" :href="'https://twitter.com/intent/tweet?text=' + tour + '%3A%20&amp;url=' + url" target="_blank" rel="popup"><i class="icon-twitter"></i></a>
+                              <a class="share-link share-gplus" :href="'https://plus.google.com/share?url=' + url" target="_blank" rel="popup"><i class="icon-gplus"></i></a>
+                              <a class="share-link share-pinterest" :href="'http://pinterest.com/pin/find/?url=' + url" target="_blank" rel="popup"><i class="icon-pinterest"></i></a>
+                              <a class="share-link share-whatsapp" :href="'whatsapp://send?text=' + url" target="_blank"><i class="icon-whatsapp"></i></a>
+                              <a class="share-link share-email" :href="'mailto:?to=&amp;subject=' + tour + '&amp;body=' + url"><i class="icon-mail"></i></a>
+                          </div>
+                      </div>
+                      <div class="modal-footer">
+                          <span @click="close">Ready</span>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </transition>
+    </script>
+
+    <script type="text/x-template" id="headline-placeholder">
+      <div class="headline headline-placeholder">
+          <div class="gallery"></div>
+          <div class="static-preview"></div>
+      </div>
+    </script>
+
+    <script type="text/x-template" id="module-placeholder">
+      <div class="module module-placeholder">
+          <table class="stats-table">
+              <tr><th><span>PLACEHOLDER TITLE</span></th></tr>
+              <tr v-for="n in 5">
+                  <td><span>PLACEHOLDER</span></td>
+                  <td><span>DUMMY</span></td>
+              </tr>
+          </table>
+      </div>
+    </script>
+
+    <script type="text/x-template" id="paragraph-placeholder">
+      <div class="paragraph paragraph-placeholder">
+          <h2></h2>
+          <div class="sub">
+              <div>
+                  <div class="sub-paragraph">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                  </div>
+              </div>
+          </div>
+      </div>
+    </script>
+
+    <script type="text/x-template" id="header-placeholder">
+      <div class="header header-placeholder">
+          <p class="tags">
+              <span class="type">PLACEHOLDER</span>
+              <span class="symbol"></span>
+              <span class="difficulty"></span>
+          </p>
+          <h1></h1>
+          <h2></h2>
+          <div class="stats-flash">
+              <div class="stat">
+                  <span class="icon"><i class="icon-duration"></i></span>
+                  <span class="value">0:00</span>
+                  <span class="unit">hours</span>
+              </div>
+              <div class="stat">
+                  <span class="icon"><i class="icon-ascent"></i></span>
+                  <span class="value">000</span>
+                  <span class="unit">m</span>
+              </div>
+              <div class="stat">
+                  <span class="icon"><i class="icon-distance"></i></span>
+                  <span class="value">00</span>
+                  <span class="unit">km</span></div>
+                  <div class="stat">
+                      <span class="icon"><i class="icon-descent"></i></span>
+                      <span class="value">000</span>
+                      <span class="unit">m</span>
+                  </div>
+              </div>
+          </div>
+    </script>
+
+    <script type="text/x-template" id="list-placeholder">
+      <div class="element list-placeholder">
+            <div class="gallery"></div>
+            <span class="type Trailrunning">PLACEHOLDER TYPE</span>
+            <p class="title">PLACEHOLDING TITLE</p>
+      </div>
+    </script>
+
+    <div id="route_details">
+      <share-modal
+        :show="showShareModal"
+        :tour="title"
+        :url="shareUrl"
+        :image="images ? images[0].url : ''"
+      ></share-modal>
+      <header>
+        <div><img src="images/logo_lech_zuers.png" /></div>
+      </header>
+      <headline-placeholder v-if="!images"></headline-placeholder>
+      <div v-if="images" id="headline" class="headline">
+        <div class="actions">
+          <a
+            class="btn-primary btn-important btn-shadow"
+            @click="showShareModal = true"
+          >
+            <i class="icon-share"></i> Share
+          </a>
+          <a class="btn-primary btn-important btn-shadow" :href="gpx">
+            <i class="icon-download"></i> GPX
+          </a>
+        </div>
+        <div
+          class="gallery swiper-container"
+          v-bind:class="[images && images.length == 1 ? 'gallery-singular' : '']"
+        >
+          <div class="slides swiper-wrapper">
+            <div v-for="image in images" class="slide swiper-slide">
+              <img :src="image.url" />
+            </div>
+          </div>
+          <div class="swiper-pagination-background"></div>
+          <div class="swiper-pagination"></div>
+          <div class="swiper-button-prev"><i class="icon-arrow-left"></i></div>
+          <div class="swiper-button-next"><i class="icon-arrow-right"></i></div>
+        </div>
+        <div class="static-preview">
+          <a class="btn-secondary btn-shadow">To map</a>
+          <img :src="thumbnail" />
+        </div>
+      </div>
+      <div class="content" v-cloak>
+        <div class="split">
+          <div class="left">
+            <header-placeholder v-if="!_dataReceived"></header-placeholder>
+            <div v-if="_dataReceived" class="header">
+              <a id="back_to_list" href="./index_en.html">
+                <i class="icon-list"></i> Back to overview</a
+              >
+              <p class="tags">
+                <span class="type" :class="subtype">{{ subtype }}</span>
+                <span
+                  class="symbol"
+                  v-bind:style="{ background: 'url(images/tours/symbols/' + subtype + '.svg) center/100%' }"
+                ></span>
+                <span class="difficulty" :data-difficulty="difficulty">{{
+                  difficulties[difficulty]
+                }}</span>
+              </p>
+              <h1 v-html="title">{{ title }}</h1>
+              <h2 v-html="description">{{ description }}</h2>
+              <div class="stats-flash">
+                <div class="stat" title="Dauer">
+                  <span class="icon"> <i class="icon-duration"></i> </span>
+                  <span class="value">{{ time }}</span>
+                  <span class="unit">hours</span>
+                </div>
+                <div class="stat" title="Aufstieg">
+                  <span class="icon"> <i class="icon-ascent"></i> </span>
+                  <span class="value">{{ ascent }}</span>
+                  <span class="unit">m</span>
+                </div>
+                <div class="stat" title="Distanz">
+                  <span class="icon"> <i class="icon-distance"></i> </span>
+                  <span class="value">{{ distance }}</span>
+                  <span class="unit">km</span>
+                </div>
+                <div class="stat" title="Abstieg">
+                  <span class="icon"> <i class="icon-descent"></i> </span>
+                  <span class="value">{{ descent }}</span>
+                  <span class="unit">m</span>
+                </div>
+              </div>
+            </div>
+            <paragraph-placeholder
+              v-if="!_dataReceived"
+              v-for="n in 4"
+            ></paragraph-placeholder>
+            <div
+              v-if="_dataReceived && paragraph.show"
+              v-if="paragraph"
+              class="paragraph"
+              v-for="paragraph in info"
+            >
+              <h2>{{ paragraph.title }}</h2>
+              <div v-if="paragraph.content" class="sub">
+                <div>
+                  <div class="sub-paragraph" v-for="sub in paragraph.content">
+                    <h4 v-if="sub.subtitle && sub.text">{{ sub.subtitle }}</h4>
+                    <p v-html="sub.text">{{ sub.text }}</p>
+                  </div>
+                </div>
+              </div>
+              <br />
+              <a
+                href="https://www.lech-zuers.at/kontakt-und-anreise/"
+                target="_blank"
+                v-if="paragraph.title=='Anreise'"
+                class="btn-primary btn-important btn-shadow"
+              >
+                <i class="icon-transportation"></i> Plan Trip</a
+              >
+            </div>
+          </div>
+          <div class="right">
+            <div class="actions">
+              <a
+                class="btn-primary btn-important btn-shadow"
+                @click="showShareModal = true"
+              >
+                <i class="icon-share"></i> Share
+              </a>
+              <a class="btn-primary btn-important btn-shadow" :href="gpx">
+                <i class="icon-download"></i> GPX
+              </a>
+            </div>
+            <module-placeholder
+              v-if="!_dataReceived"
+              v-for="n in 2"
+            ></module-placeholder>
+            <div v-if="_dataReceived" class="module elevationprofile">
+              <div id="elevationprofile" style="pointer-events:none"></div>
+            </div>
+            <div v-if="_dataReceived" class="module">
+              <table class="stats-table" style="width:100%">
+                <tr>
+                  <th>Details</th>
+                </tr>
+
+                <tr>
+                  <td>Difficulty</td>
+                  <td>
+                    <span class="difficulty" :data-difficulty="difficulty">{{
+                      difficulties[difficulty]
+                    }}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Duration</td>
+                  <td>
+                    <span class="value">{{ time }}</span>
+                    <span class="unit">Std</span>
+                    <span class="icon"> <i class="icon-duration"></i> </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Distance</td>
+                  <td>
+                    <span class="value">{{ distance }}</span>
+                    <span class="unit">km</span>
+                    <span class="icon"> <i class="icon-distance"></i> </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Ascending</td>
+                  <td>
+                    <span class="value">{{ ascent }}</span>
+                    <span class="unit">m</span>
+                    <span class="icon"> <i class="icon-ascent"></i> </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Descending</td>
+                  <td>
+                    <span class="value">{{ descent }}</span>
+                    <span class="unit">m</span>
+                    <span class="icon"> <i class="icon-descent"></i> </span>
+                  </td>
+                </tr>
+                <tr v-if="author">
+                  <td>Author</td>
+                  <td>
+                    <span v-html="author">{{ author }}</span>
+                  </td>
+                </tr>
+              </table>
+
+              <div class="tags" :class="subtype">
+                <span
+                  v-for="tag in tags"
+                  class="default"
+                  :data-tag="tag"
+                ></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="separator-32"></div>
+        <div id="interactive_map" class="interactive-map">
+          <h2>Map</h2>
+          <div id="map"></div>
+        </div>
+        <div class="separator-32"></div>
+        <h2 v-if="recommended && recommended.length">Similar tours</h2>
+        <div id="recommended" class="list list-nobreak">
+          <list-placeholder
+            v-if="!recommended"
+            v-for="n in numberOfRecommendations"
+          ></list-placeholder>
+          <div v-for="tour in recommended" class="element" :data-id="tour.id">
+            <p class="tags">
+              <span
+                class="symbol"
+                v-bind:style="{ background: 'url(images/tours/symbols/' + tour.subtype + '.svg) center/100%' }"
+              ></span>
+              <span class="difficulty" :data-difficulty="tour.difficulty">{{
+                difficulties[tour.difficulty]
+              }}</span>
+            </p>
+            <div class="gallery swiper-container">
+              <div class="slides swiper-wrapper">
+                <div v-for="image in tour.images" class="slide swiper-slide">
+                  <img :src="image.url" />
+                </div>
+              </div>
+              <div class="swiper-pagination-background"></div>
+              <div class="swiper-pagination"></div>
+              <div class="swiper-button-prev">
+                <i class="icon-arrow-left"></i>
+              </div>
+              <div class="swiper-button-next">
+                <i class="icon-arrow-right"></i>
+              </div>
+            </div>
+            <span class="type" :class="tour.subtype">{{ tour.subtype }}</span>
+            <p class="title">{{ tour.title }}</p>
+            <div class="stats-flash">
+              <div class="stat" title="Dauer">
+                <span class="icon"> <i class="icon-duration"></i> </span>
+                <span class="value">{{ tour.time }}</span>
+                <span class="unit">hours</span>
+              </div>
+              <div class="stat" title="Aufstieg">
+                <span class="icon"> <i class="icon-ascent"></i> </span>
+                <span class="value">{{ tour.ascent }}</span>
+                <span class="unit">m</span>
+              </div>
+              <div class="stat" title="Distanz">
+                <span class="icon"> <i class="icon-distance"></i> </span>
+                <span class="value">{{ tour.distance }}</span>
+                <span class="unit">km</span>
+              </div>
+              <div class="stat" title="Abstieg">
+                <span class="icon"> <i class="icon-descent"></i> </span>
+                <span class="value">{{ tour.descent }}</span>
+                <span class="unit">m</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <footer>
+        <div class="quick-menu">
+          <div class="quick-info">
+            <p class="tags">
+              <span class="type" :class="subtype">{{ subtype }}</span>
+              <span class="difficulty" :data-difficulty="difficulty"></span>
+            </p>
+            <h1 v-html="title">{{ title }}</h1>
+          </div>
+          <div class="quick-actions">
+            <a
+              href="https://www.lech-zuers.at/kontakt-und-anreise/"
+              target="_blank"
+              class="btn-primary btn-important btn-shadow"
+            >
+              <i class="icon-transportation"></i>Arrival</a
+            >
+            <a class="btn-primary btn-important btn-shadow">
+              <i class="icon-share"></i> Share
+            </a>
+            <a class="btn-primary btn-important btn-shadow" :href="gpx">
+              <i class="icon-download"></i> GPX
+            </a>
+          </div>
+        </div>
+      </footer>
+    </div>
+    <!-- development version, includes helpful console warnings -->
+    <!-- <script src="vendor/js/dev.vue.js"></script> -->
+    <!-- production version, optimized for size and speed -->
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="vendor/js/jquery-3.2.1.min.js"></script>
+    <script src="https://static.maptoolkit.net/api/v8.9/mtk.de.js"></script>
+    <script src="https://static.maptoolkit.net/api/v8.9/elevationprofile2.js"></script>
+    <script src="vendor/js/swiper.min.js"></script>
+    <script src="vendor/js/nouislider.min.js"></script>
+    <script src="js/routeCMS.js"></script>
+    <script>
+      if (location.hash.match(/id=(([a-z]|\d|-)+)/))
+        routeDetails = new MTK.RouteCMS.RouteDetails(
+          "#route_details",
+          RegExp.$1
+        );
+      else alert("Bitte Hashparameter 'id' definieren");
+      window.onhashchange = () => {
+        window.location.reload();
+      };
+    </script>
+  </body>
+</html>
